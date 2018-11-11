@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewData["Title"] = "Product";
+}
+
+<h2>Product</h2>
+
+<div class="row">
+    <table class="table table-bordered">
+        <tr>
+            <td><div id="piechart_div" style="border:1px solid #ccc"></div></td>
+            <td><div id="barchart_div" style="border:1px solid #ccc"></div></td>
+        </tr>
+    </table>
+</div>
+
+
+@section Scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart'] });
+
+
+        $(document).ready(function () {
+
+            function drawChart(result) {
+                // Define the chart to be drawn.
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Name');
+                data.addColumn('number', 'Quantity');
+                var dataArray = [];
+                $.each(result, function (i, obj) {
+                    dataArray.push([obj.name, obj.quantity]);
+                })
+                data.addRows(dataArray);
+
+                // Instantiate and draw the chart.
+                var piechart_options = {
+                    title: 'Pie Chart: How Much Products Sold By Last Night',
+                    width: 400,
+                    height: 300
+                };
+                var pie_chart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+                pie_chart.draw(data, piechart_options);
+
+                var barchart_options = {
+                    title: 'Bar Chart: How Much Products Sold By Last Night',
+                    width: 400,
+                    height: 300,
+                    legend: 'none'
+                };
+                var bar_chart = new google.visualization.BarChart(document.getElementById('barchart_div'));
+                bar_chart.draw(data, barchart_options);
+            };
+
+            $.ajax({
+                type: 'GET',
+                dataType: "json",
+                contentType: "application/json",
+                url: '@Url.Action("FindAll", "Product")',
+                success: function (result) {
+                        google.charts.load('curent', {
+                            packages: ['corechart']
+                        });
+                        google.charts.setOnLoadCallback(function () {
+                            drawChart(result);
+                        });
+                    }
+                });
+
+        });
+
+    </script>
+}
